@@ -64,6 +64,21 @@ https://console.aws.amazon.com/cloudformation/home#/stacks/quickcreate?templateU
 
 Le compte qui exécute SenseDrift a seulement besoin de `sts:AssumeRole` sur `arn:aws:iam::*:role/SenseDriftAuditRole`.
 
+## Déploiement du site (GitHub Actions)
+
+Le workflow `.github/workflows/deploy-site.yml` publie le dossier `site/` dans le bucket S3 `sensedrift-landing` à chaque modification de `site/` sur `main` (ou à la demande depuis l'onglet **Actions**). L'authentification passe par OIDC : aucune clé AWS n'est stockée dans GitHub.
+
+Mise en place, une seule fois :
+
+1. Dans la console AWS → CloudFormation → *Créer une stack*, importer `deploy/github-deploy-role.yaml` (nom de stack conseillé : `github-deploy-site`). Si le fournisseur d'identité `token.actions.githubusercontent.com` existe déjà dans IAM, mettre `CreateOIDCProvider` à `false`.
+2. Dans GitHub → *Settings → Secrets and variables → Actions → Variables*, définir :
+   - `AWS_DEPLOY_ROLE_ARN` = sortie `RoleArn` de la stack ;
+   - `AWS_REGION` = région du bucket, si différente de `eu-west-1` ;
+   - `CLOUDFRONT_DISTRIBUTION_ID` (optionnel, une fois CloudFront en place).
+3. Lancer le workflow depuis *Actions → Déployer le site → Run workflow*.
+
+Le rôle ne peut écrire que dans ce bucket, et seulement depuis la branche `main` de ce dépôt. Les fichiers `*.md` du dossier `site/` ne sont jamais publiés.
+
 ## Tests
 
 ```bash

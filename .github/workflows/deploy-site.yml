@@ -1,0 +1,75 @@
+name: Déployer le site
+
+# Publie le dossier site/ dans le bucket S3 du site.
+# Se déclenche quand site/ change sur main, ou manuellement (onglet Actions).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # nécessaire pour l'authentification OIDC auprès d'AWS
+  contents: read
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+env:
+  BUCKET: sensedrift-landing
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-1' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vérifier la configuration
+        run: |
+          if [ -z "${{ vars.AWS_DEPLOY_ROLE_ARN }}" ]; then
+            echo "::error::Variable AWS_DEPLOY_ROLE_ARN absente (Settings → Secrets and variables → Actions → Variables)."
+            exit 1
+          fi
+          test -f site/index.html
+
+      - name: Identifiants AWS (OIDC, sans clé stockée)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: github-deploy-site-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Publier les fichiers
+        run: |
+          # 1. Fichiers statiques (PDF, images…) : cache long.
+          aws s3 sync site/ "s3://$BUCKET/" \
+            --exclude "*.html" --exclude "*.md" \
+            --cache-control "public, max-age=86400"
+          # 2. Pages HTML : toujours recopiées (légères), jamais en cache navigateur.
+          aws s3 cp site/ "s3://$BUCKET/" --recursive \
+            --exclude "*" --include "*.html" \
+            --content-type "text/html; charset=utf-8" \
+            --cache-control "no-cache"
+          # 3. Supprime du bucket ce qui n'existe plus dans site/.
+          aws s3 sync site/ "s3://$BUCKET/" --delete --exclude "*.md" --size-only
+
+      - name: Vider le cache CloudFront
+        if: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID != '' }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*" --query "Invalidation.Id" --output text
+
+      - name: Résumé
+        run: |
+          {
+            echo "### Site publié"
+            echo ""
+            echo "Bucket : \`$BUCKET\` ($AWS_REGION) — commit \`${GITHUB_SHA::7}\`"
+            echo ""
+            aws s3 ls "s3://$BUCKET/" --recursive --human-readable | sed 's/^/    /'
+          } >> "$GITHUB_STEP_SUMMARY"
