@@ -1,13 +1,21 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Rôle IAM assumé par GitHub Actions (OIDC, sans clé d'accès) pour publier le
-  site dans le bucket S3. Limité à la branche main du dépôt indiqué.
+  Role IAM assume par GitHub Actions (OIDC, sans cle d'acces) pour publier le
+  site dans le bucket S3. Limite a la branche main du depot indique.
 
 Parameters:
   GitHubRepo:
     Type: String
     Default: JulienDroulez31/sensedrift
     Description: Dépôt GitHub autorisé (propriétaire/nom).
+  GitHubOwnerId:
+    Type: String
+    Default: "156816030"
+    Description: ID numérique du compte GitHub propriétaire (présent dans le claim sub des nouveaux jetons).
+  GitHubRepoId:
+    Type: String
+    Default: "1447973322"
+    Description: ID numérique du dépôt GitHub (présent dans le claim sub des nouveaux jetons).
   Branch:
     Type: String
     Default: main
@@ -57,7 +65,14 @@ Resources:
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
-                token.actions.githubusercontent.com:sub: !Sub "repo:${GitHubRepo}:ref:refs/heads/${Branch}"
+                # GitHub émet désormais un sub incluant les ID immuables du compte et
+                # du dépôt (repo:owner@id/name@id:...). L'ancien format reste accepté.
+                token.actions.githubusercontent.com:sub:
+                  - !Sub "repo:${GitHubRepo}:ref:refs/heads/${Branch}"
+                  - !Sub
+                    - "repo:${Owner}@${GitHubOwnerId}/${Name}@${GitHubRepoId}:ref:refs/heads/${Branch}"
+                    - Owner: !Select [0, !Split ["/", !Ref GitHubRepo]]
+                      Name: !Select [1, !Split ["/", !Ref GitHubRepo]]
       Policies:
         - PolicyName: DeploySite
           PolicyDocument:
