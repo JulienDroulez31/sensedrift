@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conditions générales de vente — SenseDrift</title><meta name="robots" content="noindex">
+<style>
+body{background:#0b0b0f;color:#e8e8ee;font:16px/1.7 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;margin:0}
+main{max-width:760px;margin:0 auto;padding:56px 20px 80px} a{color:#a5b4fc}
+h1{font-size:32px;letter-spacing:-.03em;margin:24px 0 8px} h2{font-size:19px;margin:36px 0 8px}
+p,li{color:#b4b4be} li{margin-bottom:6px}
+</style></head><body><main><a href="./">← Retour à l'accueil</a>
+<h1>Conditions générales de vente</h1>
+<p>Version en vigueur au 6 novembre 2026.</p>
+
+<h2>1. Objet et champ d'application</h2>
+<p>Les présentes conditions générales de vente (« CGV ») régissent les prestations d'audit de comptes Amazon Web Services (« AWS ») fournies par SenseDrift, dont l'identité figure dans les <a href="mentions-legales.html">mentions légales</a>, à ses clients (le « Client »).</p>
+<p>Les prestations sont exclusivement destinées aux <strong>professionnels</strong> agissant dans le cadre de leur activité. Toute commande vaut acceptation sans réserve des présentes CGV, qui prévalent sur les conditions d'achat du Client sauf accord écrit contraire.</p>
+
+<h2>2. Prestations</h2>
+<ul>
+<li><strong>Audit ponctuel</strong> : analyse automatisée en lecture seule du compte AWS du Client, remise d'un rapport PDF et d'un export CSV, et un échange de restitution.</li>
+<li><strong>Suivi mensuel</strong> : un audit complet par mois, selon les modalités décrites sur le site au jour de la souscription.</li>
+<li><strong>Premier audit offert</strong> : le premier audit ponctuel d'un nouveau Client peut être réalisé gratuitement. Il est soumis aux présentes CGV, à l'exception des articles relatifs au prix et au paiement.</li>
+</ul>
+<p>Le périmètre de l'audit (comptes, régions, services, contrôles réalisés) est indiqué dans chaque rapport. Les contrôles qui n'ont pu être exécutés y sont signalés.</p>
+
+<h2>3. Commande</h2>
+<p>La demande est faite via le formulaire du site ou par email. La commande est ferme après confirmation écrite de SenseDrift (email) précisant la prestation et son prix.</p>
+
+<h2>4. Accès au compte AWS et obligations du Client</h2>
+<p>Pour permettre l'audit, le Client crée dans son compte AWS un rôle IAM en lecture seule à partir du modèle fourni par SenseDrift, protégé par un identifiant externe propre au Client. Ce rôle :</p>
+<ul>
+<li>ne permet aucune modification des ressources du Client ;</li>
+<li>interdit explicitement la lecture du contenu des données (objets S3, bases de données, secrets, paramètres, journaux applicatifs) ;</li>
+<li>peut être supprimé à tout moment par le Client, ce qui met fin immédiatement à l'accès.</li>
+</ul>
+<p>Le Client garantit qu'il est habilité à autoriser cet accès sur le compte concerné. Il reste seul responsable de la mise en œuvre des recommandations, qu'il lui appartient de tester au préalable sur un environnement hors production.</p>
+
+<h2>5. Prix</h2>
+<p>Les prix sont ceux affichés sur le site au jour de la commande, exprimés en euros hors taxes. La TVA est appliquée au taux en vigueur lorsqu'elle est due. L'audit ponctuel est facturé à la commande. Le suivi mensuel est facturé au début de chaque mois d'abonnement.</p>
+
+<h2>6. Paiement</h2>
+<p>Les factures sont payables à 30 jours à compter de leur date d'émission, par virement bancaire. Aucun escompte n'est accordé en cas de paiement anticipé.</p>
+<p>Conformément à l'article L. 441-10 du Code de commerce, tout retard de paiement entraîne de plein droit l'application de pénalités au taux d'intérêt appliqué par la Banque centrale européenne à son opération de refinancement la plus récente majoré de 10 points, ainsi qu'une indemnité forfaitaire pour frais de recouvrement de 40 €. SenseDrift peut suspendre les prestations en cours jusqu'au paiement complet.</p>
+
+<h2>7. Durée et résiliation du suivi mensuel</h2>
+<p>Le suivi mensuel est conclu sans engagement de durée. Il se renouvelle chaque mois tacitement et peut être résilié par l'une ou l'autre partie par email, avec effet à la fin du mois en cours. Le mois commencé reste dû.</p>
+
+<h2>8. Nature des résultats et responsabilité</h2>
+<p>SenseDrift est tenu d'une obligation de moyens. L'audit est une évaluation automatisée de la configuration à une date donnée. Il ne constitue ni un test d'intrusion, ni une certification, ni une garantie d'absence de vulnérabilité.</p>
+<p>Les économies indiquées sont des <strong>estimations</strong> fondées sur les tarifs publics d'AWS et l'usage observé. Elles ne constituent pas un engagement de résultat.</p>
+<p>SenseDrift ne saurait être responsable des dommages indirects (perte d'exploitation, de chiffre d'affaires ou de données), ni des conséquences de modifications réalisées par le Client. Dans tous les cas, la responsabilité totale de SenseDrift est limitée au montant effectivement payé par le Client au titre de la prestation concernée au cours des douze derniers mois.</p>
+
+<h2>9. Confidentialité</h2>
+<p>Les rapports et informations recueillies sur l'infrastructure du Client sont strictement confidentiels. SenseDrift s'engage à ne les communiquer à aucun tiers, sauf obligation légale, et à ne les utiliser que pour l'exécution de la prestation. Cette obligation survit 5 ans à la fin de la relation.</p>
+
+<h2>10. Données personnelles</h2>
+<p>Les données de configuration peuvent contenir des données personnelles (par exemple des noms d'utilisateurs IAM). Pour ces données, SenseDrift agit en qualité de sous-traitant du Client au sens de l'article 28 du RGPD. À ce titre, SenseDrift :</p>
+<ul>
+<li>ne traite ces données que pour réaliser l'audit, sur instruction du Client ;</li>
+<li>veille à la confidentialité des personnes habilitées à y accéder ;</li>
+<li>met en œuvre des mesures de sécurité appropriées (accès en lecture seule, stockage sécurisé et accès restreint aux rapports) ;</li>
+<li>notifie au Client toute violation de données dans les meilleurs délais ;</li>
+<li>supprime ou restitue les données à la fin de la prestation, selon le choix du Client, sous réserve des obligations légales de conservation.</li>
+</ul>
+<p>Les traitements réalisés pour la relation commerciale sont décrits dans la <a href="confidentialite.html">politique de confidentialité</a>.</p>
+
+<h2>11. Propriété intellectuelle</h2>
+<p>Le Client peut librement utiliser et diffuser les rapports en interne et auprès de ses prestataires. Les outils, méthodes et modèles de SenseDrift restent sa propriété exclusive. SenseDrift peut citer le nom du Client comme référence commerciale uniquement avec son accord écrit.</p>
+
+<h2>12. Force majeure</h2>
+<p>Aucune partie ne sera tenue responsable d'un manquement résultant d'un cas de force majeure au sens de l'article 1218 du Code civil, notamment une indisponibilité des services AWS.</p>
+
+<h2>13. Droit applicable et litiges</h2>
+<p>Les présentes CGV sont soumises au droit français. En cas de litige, les parties rechercheront d'abord une solution amiable. À défaut, compétence exclusive est attribuée au tribunal de commerce du ressort du siège de SenseDrift.</p>
+</main></body></html>
