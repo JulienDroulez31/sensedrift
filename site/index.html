@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SenseDrift — Audit AWS : sécurité et réduction des coûts</title>
+<meta name="description" content="SenseDrift audite votre compte AWS en lecture seule : 50 contrôles de sécurité et de coûts, économies chiffrées et plan d'action priorisé dans un rapport PDF clair. Premier audit offert.">
+<link rel="canonical" href="https://sensedrift.fr/">
+<meta name="theme-color" content="#0b0b0f">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://sensedrift.fr/">
+<meta property="og:title" content="SenseDrift — Votre infra AWS vous coûte trop cher">
+<meta property="og:description" content="Audit AWS en lecture seule : failles de sécurité, ressources inutilisées et économies chiffrées, dans un rapport PDF priorisé.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234f46e5'/%3E%3Crect x='8' y='11' width='16' height='4' fill='white'/%3E%3Crect x='8' y='18' width='11' height='4' fill='white'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ProfessionalService","name":"SenseDrift","url":"https://sensedrift.fr/","email":"contact@sensedrift.fr","description":"Audit de sécurité et d'optimisation des coûts AWS en lecture seule.","areaServed":"FR","priceRange":"49 € – 149 € HT"}
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0b0b0f;
+  --bg-2: #121218;
+  --bg-3: #191921;
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
+  --text: #f2f2f5;
+  --text-2: #b4b4be;
+  --text-3: #8b8b96;
+  --accent: #6366f1;
+  --accent-2: #a5b4fc;
+  --accent-glow: rgba(99,102,241,0.18);
+  --green: #34d399;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --max: 960px;
+}
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; border-radius: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.glow { position: absolute; inset: 0 0 auto; height: 720px; pointer-events: none; z-index: 0;
+  background: radial-gradient(600px 380px at 50% -60px, rgba(99,102,241,0.16), transparent 70%); }
+
+.wrap { position: relative; z-index: 1; max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+
+/* NAV */
+nav { position: sticky; top: 0; z-index: 100; background: rgba(11,11,15,0.82); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: var(--max); margin: 0 auto; padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 15.5px; text-decoration: none; letter-spacing: -0.01em; }
+.logo svg { flex-shrink: 0; }
+.nav-links { display: flex; align-items: center; gap: 2px; }
+.nav-link { font-size: 14px; color: var(--text-2); padding: 7px 12px; border-radius: 8px; text-decoration: none; transition: color .15s, background .15s; }
+.nav-link:hover { color: var(--text); background: var(--bg-3); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 500 14.5px/1 var(--sans);
+  padding: 13px 22px; border-radius: 10px; text-decoration: none; cursor: pointer; border: 1px solid transparent;
+  transition: background .15s, border-color .15s, box-shadow .15s, color .15s; }
+.btn-primary { color: #fff; background: var(--accent); box-shadow: 0 0 28px var(--accent-glow); }
+.btn-primary:hover { background: #5458e8; box-shadow: 0 0 40px rgba(99,102,241,0.3); }
+.btn-ghost { color: var(--text); background: var(--bg-3); border-color: var(--border-strong); }
+.btn-ghost:hover { border-color: rgba(255,255,255,0.3); }
+.btn-sm { padding: 9px 15px; font-size: 13.5px; }
+
+/* HERO */
+.hero { text-align: center; padding: 88px 0 64px; }
+.badge { display: inline-flex; align-items: center; gap: 8px; background: var(--bg-3); border: 1px solid var(--border-strong);
+  border-radius: 99px; padding: 6px 14px 6px 10px; font: 12.5px var(--mono); color: var(--text-2); margin-bottom: 32px; }
+.badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+h1 { font-size: clamp(38px, 6.4vw, 64px); font-weight: 650; line-height: 1.05; letter-spacing: -0.04em; margin-bottom: 22px; }
+h1 .dim { color: var(--text-3); }
+h1 .accent { color: var(--accent-2); }
+.hero-sub { font-size: 18px; color: var(--text-2); max-width: 580px; margin: 0 auto 36px; }
+.hero-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+.hero-note { font-size: 13px; color: var(--text-3); margin-bottom: 56px; }
+
+/* TERMINAL */
+.terminal { background: var(--bg-2); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); overflow: hidden;
+  text-align: left; max-width: 680px; margin: 0 auto; box-shadow: 0 32px 80px rgba(0,0,0,0.55); }
+.terminal-bar { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 7px; background: var(--bg-3); }
+.dot { width: 11px; height: 11px; border-radius: 50%; background: #3a3a44; }
+.terminal-title { margin-left: 8px; font: 11.5px var(--mono); color: var(--text-3); }
+.terminal-body { padding: 20px 22px; font: 12.5px/1.95 var(--mono); color: var(--text-2); overflow-x: auto; white-space: pre; }
+.tc { color: var(--text-3); } .tk { color: var(--accent-2); } .tv { color: var(--green); } .tw { color: var(--amber); } .te { color: var(--red); }
+
+/* TRUST STRIP */
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--bg-2); overflow: hidden; margin: 0 0 96px; }
+.fact { padding: 24px 22px; border-right: 1px solid var(--border); }
+.fact:last-child { border-right: none; }
+.fact b { display: block; font: 600 24px/1.2 var(--mono); letter-spacing: -0.02em; margin-bottom: 4px; }
+.fact span { font-size: 13px; color: var(--text-3); }
+.fact:nth-child(1) b { color: var(--accent-2); } .fact:nth-child(2) b { color: var(--green); } .fact:nth-child(3) b { color: var(--amber); }
+
+/* SECTIONS */
+section.wrap { padding-bottom: 104px; scroll-margin-top: 80px; }
+.eyebrow { font: 11.5px var(--mono); color: var(--accent-2); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 14px; }
+h2 { font-size: clamp(26px, 3.6vw, 34px); font-weight: 650; letter-spacing: -0.03em; line-height: 1.18; margin-bottom: 12px; }
+.section-sub { font-size: 16px; color: var(--text-2); max-width: 600px; margin-bottom: 40px; }
+
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden; }
+.card { background: var(--bg-2); padding: 28px 24px; }
+.icon { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-glow);
+  border: 1px solid rgba(99,102,241,0.28); color: var(--accent-2); margin-bottom: 16px; }
+.card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.card p { font-size: 14px; color: var(--text-3); }
+
+/* REPORT PREVIEW */
+.report { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+.report ul { list-style: none; display: grid; gap: 14px; margin: 8px 0 28px; }
+.report li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; font-size: 15px; color: var(--text-2); }
+.report li b { color: var(--text); font-weight: 600; }
+.check { color: var(--green); margin-top: 3px; }
+.mock { background: #fff; color: #0f172a; border-radius: 12px; padding: 22px; box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  transform: rotate(1.2deg); font-size: 12px; }
+.mock h4 { font-size: 16px; margin-bottom: 12px; letter-spacing: -0.01em; }
+.mock-row { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: center; margin-bottom: 14px; }
+.ring { width: 92px; height: 92px; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.kpi { background: #f8fafc; border-radius: 6px; padding: 8px 10px; }
+.kpi.g { background: #ecfdf5; } .kpi strong { display: block; font-size: 15px; } .kpi.g strong { color: #047857; }
+.kpi span { font-size: 10px; color: #475569; }
+.mock table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+.mock td { padding: 6px 4px; border-bottom: 1px solid #e2e8f0; }
+.pill { display: inline-block; font-size: 8.5px; font-weight: 700; color: #fff; border-radius: 3px; padding: 2px 6px; letter-spacing: .03em; }
+.p-c { background: #b91c1c; } .p-h { background: #c2410c; } .p-m { background: #a16207; }
+.mock .r { text-align: right; font-weight: 700; color: #047857; }
+
+/* STEPS */
+.steps { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.step { display: flex; gap: 24px; padding: 26px 28px; background: var(--bg-2); border-bottom: 1px solid var(--border); }
+.step:last-child { border-bottom: none; }
+.step-num { font: 12px var(--mono); color: var(--accent-2); background: var(--accent-glow); border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 7px; padding: 6px 10px; height: fit-content; width: fit-content; flex-shrink: 0; }
+.step h3 { font-size: 15.5px; font-weight: 600; margin-bottom: 5px; }
+.step p { font-size: 14px; color: var(--text-3); }
+
+/* SECURITY */
+.sec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.sec { border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; background: var(--bg-2); }
+.sec h3 { font-size: 14.5px; font-weight: 600; margin-bottom: 6px; display: flex; gap: 10px; align-items: center; }
+.sec p { font-size: 14px; color: var(--text-3); }
+.sec code { font: 12.5px var(--mono); color: var(--accent-2); }
+
+/* PRICING */
+.pricing { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.plan { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; position: relative; display: flex; flex-direction: column; }
+.plan.featured { border-color: var(--accent); background: linear-gradient(135deg, rgba(99,102,241,0.07), var(--bg-2) 60%); box-shadow: 0 0 40px rgba(99,102,241,0.12); }
+.plan-badge { position: absolute; top: -11px; left: 24px; font: 500 11px var(--mono); background: var(--accent); color: #fff; padding: 3px 12px; border-radius: 99px; }
+.plan-name { font: 12px var(--mono); color: var(--text-3); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; }
+.plan-price { font-size: 44px; font-weight: 650; letter-spacing: -0.04em; line-height: 1; margin-bottom: 6px; }
+.plan-price small { font-size: 15px; font-weight: 400; color: var(--text-3); letter-spacing: 0; }
+.plan-desc { font-size: 14px; color: var(--text-3); margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+.plan ul { list-style: none; display: grid; gap: 10px; margin-bottom: 28px; flex: 1; }
+.plan li { font-size: 14px; color: var(--text-2); display: grid; grid-template-columns: 18px 1fr; gap: 8px; }
+.price-note { font-size: 13px; color: var(--text-3); margin-top: 16px; }
+
+/* FAQ */
+details { border-bottom: 1px solid var(--border); padding: 18px 0; }
+details:first-of-type { border-top: 1px solid var(--border); }
+summary { cursor: pointer; font-weight: 600; font-size: 15.5px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font: 400 20px/1 var(--mono); color: var(--text-3); }
+details[open] summary::after { content: "−"; }
+details p { color: var(--text-2); font-size: 14.5px; margin-top: 10px; max-width: 720px; }
+
+/* CTA */
+.cta { background: linear-gradient(135deg, rgba(99,102,241,0.14), var(--bg-2) 60%); border: 1px solid rgba(99,102,241,0.28);
+  border-radius: var(--radius-lg); padding: 56px 40px; text-align: center; }
+.cta p { color: var(--text-2); margin: 0 auto 28px; max-width: 520px; }
+
+footer { border-top: 1px solid var(--border); }
+.footer-inner { max-width: var(--max); margin: 0 auto; padding: 28px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  font-size: 13px; color: var(--text-3); }
+.footer-inner nav { position: static; background: none; border: 0; backdrop-filter: none; display: flex; gap: 18px; flex-wrap: wrap; }
+.footer-inner a { text-decoration: none; } .footer-inner a:hover { color: var(--text); }
+
+@media (max-width: 820px) {
+  .report { grid-template-columns: 1fr; }
+  .mock { transform: none; }
+  .grid3 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .wrap, .nav-inner, .footer-inner { padding-left: 16px; padding-right: 16px; }
+  .nav-links { display: none; }
+  .hero { padding-top: 56px; }
+  .facts { grid-template-columns: 1fr 1fr; }
+  .fact:nth-child(2) { border-right: none; }
+  .fact:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+  .grid3, .sec-grid, .pricing { grid-template-columns: 1fr; }
+  .step { flex-direction: column; gap: 12px; padding: 22px; }
+  .cta { padding: 40px 22px; }
+  .terminal-body { font-size: 11.5px; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<nav aria-label="Navigation principale">
+  <div class="nav-inner">
+    <a class="logo" href="#top" aria-label="SenseDrift, accueil">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#4f46e5"/><rect x="8" y="11" width="16" height="4" fill="#fff"/><rect x="8" y="18" width="11" height="4" fill="#fff"/></svg>
+      SenseDrift
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="#controles">Contrôles</a>
+      <a class="nav-link" href="#rapport">Rapport</a>
+      <a class="nav-link" href="#securite">Sécurité</a>
+      <a class="nav-link" href="#tarifs">Tarifs</a>
+      <a class="nav-link" href="#faq">FAQ</a>
+    </div>
+    <a class="btn btn-primary btn-sm" href="https://tally.so/r/1AyOP4" target="_blank" rel="noopener">Audit gratuit</a>
+  </div>
+</nav>
+
+<main id="top">
+<div class="glow" aria-hidden="true"></div>
+
+<div class="wrap hero">
+  <div class="badge"><i aria-hidden="true"></i>Audit AWS en lecture seule · rapport PDF priorisé</div>
+  <h1>Votre infra AWS<br><span class="dim">vous coûte</span> <span class="accent">trop cher.</span></h1>
+  <p class="hero-sub">SenseDrift analyse votre compte AWS sans rien modifier et vous remet un rapport clair : failles de sécurité, ressources payées pour rien, économies chiffrées en euros et plan d'action priorisé.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="https://tally.so/r/1AyOP4" target="_blank" rel="noopener">Obtenir mon audit gratuit</a>
+    <a class="btn btn-ghost" href="exemple-rapport-sensedrift.pdf" target="_blank" rel="noopener">Voir un exemple de rapport (PDF)</a>
+  </div>
+  <p class="hero-note">Sans carte bancaire · accès révocable à tout moment</p>
+
+  <figure class="terminal" aria-label="Exemple de sortie de l'outil SenseDrift">
+    <div class="terminal-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="terminal-title">sensedrift — compte exemple-prod</span></div>
+<div class="terminal-body"><span class="tc"># Rôle d'audit en lecture seule · eu-west-3, eu-west-1</span>
+<span class="tk">analyse</span> 50 contrôles · 18 services ......... <span class="tv">terminé</span>
+
+<span class="te">[critique]</span> Security Group ouvert : SSH (22) sur Internet
+<span class="te">[critique]</span> Compte root sans MFA
+<span class="tw">[élevé]   </span> PostgreSQL 12 en Extended Support  → <span class="tv">251 €/mois</span>
+<span class="tw">[moyen]   </span> 2 instances surdimensionnées       → <span class="tv">389 €/mois</span>
+<span class="tw">[moyen]   </span> 3 volumes EBS non attachés         → <span class="tv">80 €/mois</span>
+
+<span class="tk">score</span> 43/100 · <span class="tk">économies</span> <span class="tv">1 121 €/mois</span>
+<span class="tk">rapport</span> → <span class="tv">sensedrift_exemple-prod.pdf</span></div>
+  </figure>
+</div>
+
+<div class="wrap">
+  <div class="facts">
+    <div class="fact"><b>50</b><span>contrôles automatisés</span></div>
+    <div class="fact"><b>18</b><span>services AWS analysés</span></div>
+    <div class="fact"><b>0</b><span>droit d'écriture sur votre compte</span></div>
+    <div class="fact"><b>CIS v3.0</b><span>référentiel de sécurité utilisé</span></div>
+  </div>
+</div>
+
+<section id="controles" class="wrap">
+  <div class="eyebrow">Ce que SenseDrift vérifie</div>
+  <h2>Coûts, sécurité, résilience :<br>tout ce qui dérive sans qu'on le voie.</h2>
+  <p class="section-sub">Chaque constat est classé par niveau de risque, rattaché aux ressources concernées et accompagné de la correction à appliquer.</p>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+      <h3>Optimisation des coûts</h3>
+      <p>Instances surdimensionnées, Savings Plans recommandés, bases en Extended Support payant, NAT Gateways et load balancers inutiles.</p>
+    </div>
+    <div class="card">
+      <div class="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <h3>Failles de sécurité</h3>
+      <p>Buckets S3 publics, root sans MFA, ports d'administration ouverts sur Internet, IMDSv1, rôles IAM trop permissifs, snapshots publics.</p>
+    </div>
+    <div class="card">
+      <div class="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></div>
+      <h3>Ressources oubliées</h3>
+      <p>Volumes EBS orphelins, Elastic IP libres, vieux snapshots, instances arrêtées depuis des mois, logs conservés indéfiniment.</p>
+    </div>
+    <div class="card">
+      <div class="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg></div>
+      <h3>Résilience</h3>
+      <p>Bases sans sauvegarde ni Multi-AZ, protection contre la suppression, versioning S3, runtimes Lambda dépréciés.</p>
+    </div>
+    <div class="card">
+      <div class="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg></div>
+      <h3>Traçabilité &amp; conformité</h3>
+      <p>CloudTrail multi-région, GuardDuty, AWS Config, VPC Flow Logs, Security Hub, contrôles alignés sur le CIS Benchmark.</p>
+    </div>
+    <div class="card">
+      <div class="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg></div>
+      <h3>Rapport actionnable</h3>
+      <p>Synthèse pour la direction, détail technique pour l'équipe, commandes prêtes à l'emploi, export CSV pour suivre les corrections.</p>
+    </div>
+  </div>
+</section>
+
+<section id="rapport" class="wrap">
+  <div class="report">
+    <div>
+      <div class="eyebrow">Le livrable</div>
+      <h2>Un rapport lisible par votre CTO… et par votre DAF.</h2>
+      <ul>
+        <li><svg class="check" width="18" height="18"><use href="#i-check"/></svg><span><b>Synthèse exécutive</b> : score de posture sur 100, économies mensuelles et annuelles, 5 actions prioritaires.</span></li>
+        <li><svg class="check" width="18" height="18"><use href="#i-check"/></svg><span><b>Vos vraies dépenses</b> : 3 mois de facturation AWS, répartis par service, et le niveau de confiance de chaque estimation.</span></li>
+        <li><svg class="check" width="18" height="18"><use href="#i-check"/></svg><span><b>Plan de remédiation</b> : effort, échéance conseillée et gain pour chaque action.</span></li>
+        <li><svg class="check" width="18" height="18"><use href="#i-check"/></svg><span><b>Transparence</b> : ce qui n'a pas pu être vérifié est indiqué noir sur blanc.</span></li>
+      </ul>
+      <a class="btn btn-ghost" href="exemple-rapport-sensedrift.pdf" target="_blank" rel="noopener">Télécharger l'exemple (PDF, données fictives)</a>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <h4>Synthèse exécutive</h4>
+      <div class="mock-row">
+        <svg class="ring" viewBox="0 0 92 92"><circle cx="46" cy="46" r="38" fill="none" stroke="#e2e8f0" stroke-width="10"/><circle cx="46" cy="46" r="38" fill="none" stroke="#c2410c" stroke-width="10" stroke-dasharray="102.7 238.8" transform="rotate(-90 46 46)"/><text x="46" y="50" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">43</text><text x="46" y="64" text-anchor="middle" font-size="7.5" fill="#475569">/ 100 · note D</text></svg>
+        <div class="kpis">
+          <div class="kpi g"><strong>1 121 €</strong><span>économies / mois</span></div>
+          <div class="kpi g"><strong>13 453 €</strong><span>économies / an</span></div>
+          <div class="kpi"><strong>4 287 €</strong><span>dépense du dernier mois</span></div>
+          <div class="kpi"><strong style="color:#b91c1c">12</strong><span>constats critiques et élevés</span></div>
+        </div>
+      </div>
+      <table>
+        <tr><td><span class="pill p-c">CRITIQUE</span></td><td>Security Groups ouverts sur Internet</td><td class="r">—</td></tr>
+        <tr><td><span class="pill p-c">CRITIQUE</span></td><td>MFA non activé sur le compte root</td><td class="r">—</td></tr>
+        <tr><td><span class="pill p-h">ÉLEVÉE</span></td><td>RDS en Extended Support payant</td><td class="r">251 €</td></tr>
+        <tr><td><span class="pill p-m">MOYENNE</span></td><td>Instances surdimensionnées</td><td class="r">389 €</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="comment" class="wrap">
+  <div class="eyebrow">Comment ça marche</div>
+  <h2>Trois étapes, aucun agent à installer.</h2>
+  <p class="section-sub">Vous gardez la main du début à la fin : l'accès se crée et se révoque en un clic depuis votre console AWS.</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><div><h3>Vous créez un rôle en lecture seule</h3><p>Nous vous envoyons un modèle CloudFormation à lancer en 2 minutes. Il crée un rôle IAM que seul SenseDrift peut utiliser, avec un identifiant secret propre à votre entreprise.</p></div></div>
+    <div class="step"><div class="step-num">02</div><div><h3>Nous lançons l'analyse</h3><p>50 contrôles sur vos régions AWS : configuration, utilisation réelle des ressources sur 14 jours et facturation des 3 derniers mois.</p></div></div>
+    <div class="step"><div class="step-num">03</div><div><h3>Vous recevez le rapport et nous en discutons</h3><p>Rapport PDF et export CSV, suivis d'un échange pour passer en revue les priorités. Ensuite, supprimez le rôle : l'accès est coupé immédiatement.</p></div></div>
+  </div>
+</section>
+
+<section id="securite" class="wrap">
+  <div class="eyebrow">Sécurité de l'audit</div>
+  <h2>Un audit de sécurité doit être irréprochable.</h2>
+  <p class="section-sub">Voici exactement ce à quoi SenseDrift a accès, et ce à quoi il n'a pas accès.</p>
+  <div class="sec-grid">
+    <div class="sec"><h3>Lecture seule, garantie par AWS</h3><p>Le rôle utilise les politiques gérées <code>SecurityAudit</code> et <code>ViewOnlyAccess</code>. Aucune action de modification n'est possible.</p></div>
+    <div class="sec"><h3>Pas d'accès à vos données</h3><p>Une interdiction explicite bloque la lecture des objets S3, des secrets, des paramètres, des tables et des journaux applicatifs.</p></div>
+    <div class="sec"><h3>Accès nominatif et protégé</h3><p>Seul le compte SenseDrift peut assumer le rôle, et uniquement avec votre <code>ExternalId</code> : aucun tiers ne peut l'utiliser.</p></div>
+    <div class="sec"><h3>Traçable et révocable</h3><p>Chaque appel apparaît dans votre CloudTrail. Supprimer la stack CloudFormation révoque l'accès instantanément.</p></div>
+  </div>
+</section>
+
+<section id="tarifs" class="wrap">
+  <div class="eyebrow">Tarifs</div>
+  <h2>Simple et transparent.</h2>
+  <p class="section-sub">Un audit ponctuel ou un suivi mensuel. Le premier audit est offert.</p>
+  <div class="pricing">
+    <div class="plan">
+      <div class="plan-name">Audit ponctuel</div>
+      <div class="plan-price">49 € <small>HT</small></div>
+      <div class="plan-desc">Un audit complet, un rapport, un échange de restitution.</div>
+      <ul>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>Rapport PDF détaillé + export CSV</li>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>50 contrôles sécurité, coûts et résilience</li>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>Économies chiffrées avec niveau de confiance</li>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>Plan d'action priorisé avec commandes prêtes à l'emploi</li>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>Accès lecture seule, révocable</li>
+      </ul>
+      <a class="btn btn-ghost" href="https://tally.so/r/1AyOP4" target="_blank" rel="noopener">Démarrer</a>
+    </div>
+    <div class="plan featured">
+      <div class="plan-badge">Recommandé</div>
+      <div class="plan-name">Suivi mensuel</div>
+      <div class="plan-price">149 € <small>HT / mois</small></div>
+      <div class="plan-desc">Pour ne plus laisser la facture et les risques dériver.</div>
+      <ul>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>Un audit complet chaque mois</li>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>Évolution du score et des économies d'un mois sur l'autre</li>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>Alerte email sur tout nouveau constat critique</li>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>Point mensuel de 30 minutes avec un expert AWS</li>
+        <li><svg class="check" width="16" height="16"><use href="#i-check"/></svg>Sans engagement, résiliable à tout moment</li>
+      </ul>
+      <a class="btn btn-primary" href="https://tally.so/r/1AyOP4" target="_blank" rel="noopener">Démarrer</a>
+    </div>
+  </div>
+  <p class="price-note">Prix hors taxes. Les économies affichées dans les rapports sont des estimations fondées sur les tarifs publics AWS et l'usage observé.</p>
+</section>
+
+<section id="faq" class="wrap">
+  <div class="eyebrow">Questions fréquentes</div>
+  <h2>Vous vous demandez sûrement…</h2>
+  <details><summary>SenseDrift peut-il casser ou modifier quelque chose ?</summary><p>Non. Le rôle ne dispose que de droits de lecture sur la configuration, attribués par des politiques gérées par AWS. Toute tentative de modification serait refusée par AWS lui-même.</p></details>
+  <details><summary>Avez-vous accès à mes données ou à celles de mes clients ?</summary><p>Non. Nous lisons la configuration (quels buckets existent, quelles règles réseau…) mais une interdiction explicite empêche de lire le contenu : fichiers S3, bases de données, secrets, journaux applicatifs.</p></details>
+  <details><summary>L'audit génère-t-il des coûts sur ma facture AWS ?</summary><p>Quelques centimes au plus : AWS facture 0,01 $ par requête Cost Explorer (environ 6 par audit). Les autres appels sont gratuits.</p></details>
+  <details><summary>Les économies annoncées sont-elles garanties ?</summary><p>Ce sont des estimations. Chaque montant est accompagné d'un niveau de confiance : « élevée » pour une ressource facturée sans aucun usage, « indicative » pour un ordre de grandeur à confirmer avec vos équipes.</p></details>
+  <details><summary>Combien de temps dure l'audit ?</summary><p>L'analyse elle-même prend quelques minutes. Le rapport vous est envoyé après relecture, avec une proposition de créneau pour en discuter.</p></details>
+  <details><summary>Comment révoquer l'accès ?</summary><p>Supprimez la stack CloudFormation « SenseDriftAudit » dans votre console AWS. L'accès est coupé immédiatement.</p></details>
+</section>
+
+<div class="wrap" style="padding-bottom:96px">
+  <div class="cta">
+    <h2>Premier audit offert.</h2>
+    <p>Découvrez en quelques jours ce que votre compte AWS vous coûte inutilement, et ce qui l'expose. Sans carte bancaire, sans engagement.</p>
+    <a class="btn btn-primary" href="https://tally.so/r/1AyOP4" target="_blank" rel="noopener">Obtenir mon audit gratuit</a>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span>© 2026 SenseDrift · <a href="mailto:contact@sensedrift.fr">contact@sensedrift.fr</a></span>
+    <nav aria-label="Informations légales">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="confidentialite.html">Confidentialité</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

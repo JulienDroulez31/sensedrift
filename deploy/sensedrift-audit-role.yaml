@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  SenseDrift - rôle d'audit en LECTURE SEULE. Permet à SenseDrift d'analyser la
+  configuration et la facturation du compte, sans pouvoir rien modifier ni lire
+  le contenu de vos données. Supprimez cette stack pour révoquer l'accès.
+
+Parameters:
+  SenseDriftAccountId:
+    Type: String
+    Description: Identifiant du compte AWS SenseDrift autorisé à assumer le rôle (fourni par SenseDrift).
+    AllowedPattern: "^[0-9]{12}$"
+  ExternalId:
+    Type: String
+    Description: Identifiant externe unique fourni par SenseDrift (protection « confused deputy »).
+    MinLength: 16
+    MaxLength: 128
+    AllowedPattern: "^[A-Za-z0-9+=,.@:/-]+$"
+
+Resources:
+  SenseDriftAuditRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SenseDriftAuditRole
+      Description: Rôle en lecture seule utilisé par SenseDrift pour l'audit de sécurité et de coûts.
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${SenseDriftAccountId}:root"
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId: !Ref ExternalId
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/SecurityAudit
+        - arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
+      Policies:
+        - PolicyName: SenseDriftCostAndUsage
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: BillingAndRightsizing
+                Effect: Allow
+                Action:
+                  - ce:GetCostAndUsage
+                  - ce:GetCostForecast
+                  - ce:GetSavingsPlansPurchaseRecommendation
+                  - ce:GetReservationPurchaseRecommendation
+                  - compute-optimizer:GetEnrollmentStatus
+                  - compute-optimizer:GetEC2InstanceRecommendations
+                  - pricing:GetProducts
+                  - cloudwatch:GetMetricData
+                  - cloudwatch:GetMetricStatistics
+                  - iam:GenerateCredentialReport
+                  - iam:GetCredentialReport
+                  - s3:GetAccountPublicAccessBlock
+                  - s3:GetBucketPolicyStatus
+                  - lambda:GetPolicy
+                  - lambda:ListFunctionUrlConfigs
+                  - ec2:DescribeSnapshotAttribute
+                Resource: "*"
+              # Garantie contractuelle : aucun accès au CONTENU des données,
+              # même si une politique gérée AWS évoluait à l'avenir.
+              - Sid: NoDataAccess
+                Effect: Deny
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - dynamodb:GetItem
+                  - dynamodb:BatchGetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - secretsmanager:GetSecretValue
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParametersByPath
+                  - kms:Decrypt
+                  - rds-data:ExecuteStatement
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                  - lambda:GetFunction
+                Resource: "*"
+
+Outputs:
+  RoleArn:
+    Description: ARN à transmettre à SenseDrift.
+    Value: !GetAtt SenseDriftAuditRole.Arn
