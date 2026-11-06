@@ -1,6 +1,6 @@
 """Génère un rapport d'exemple anonymisé (données fictives), sans accès AWS.
 
-Usage : python examples/demo_report.py  →  examples/exemple-rapport-sensedrift.pdf
+Usage : python3 examples/demo_report.py  →  examples/exemple-rapport-sensedrift.pdf
 Idéal pour le bouton « Voir un exemple de rapport » du site.
 """
 import os

@@ -8,19 +8,67 @@ Outil en ligne de commande qui analyse un compte AWS **en lecture seule** et pro
 
 50 contrôles couvrent EC2, EBS, Security Groups, S3, IAM, RDS/Aurora, Lambda, VPC, NAT Gateway, Load Balancers, CloudTrail, GuardDuty, Security Hub, IAM Access Analyzer, AWS Config, CloudWatch Logs, Cost Explorer et Compute Optimizer. Ils sont alignés sur le CIS AWS Foundations Benchmark v3.0 quand c'est pertinent.
 
-## Installation
+## Prérequis
+
+- **Python 3.9 ou plus récent** : vérifiez avec `python3 --version`.
+- **AWS CLI v2**, avec des identifiants configurés pour le compte à auditer.
+
+### Installer Python
+
+Ubuntu, Debian ou WSL :
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
+sudo apt update && sudo apt install -y python3 python3-venv python3-pip
+```
+
+macOS (avec [Homebrew](https://brew.sh)) :
+
+```bash
+brew install python
+```
+
+Windows : installer Python depuis [python.org](https://www.python.org/downloads/) en cochant « Add python.exe to PATH », ou utiliser WSL.
+
+### Configurer l'accès AWS
+
+Si `aws sts get-caller-identity` affiche votre compte, c'est déjà fait. Sinon :
+
+```bash
+aws configure
+```
+
+Pour un audit, des droits en lecture seule suffisent : `SecurityAudit` et `ViewOnlyAccess`, plus les droits listés dans `deploy/sensedrift-audit-role.yaml`.
+
+## Installation
+
+Depuis le dossier du projet :
+
+```bash
+python3 -m venv .venv
+```
+
+```bash
+source .venv/bin/activate
+```
+
+```bash
 pip install -e ".[dev]"
 ```
 
+Sous Windows (PowerShell), activez l'environnement avec `.venv\Scripts\Activate.ps1`. À chaque nouveau terminal, réactivez-le avec `source .venv/bin/activate` avant d'utiliser `sensedrift`.
+
 ## Utilisation
 
-Sur votre propre compte (profil AWS CLI) :
+Sur votre propre compte, avec vos identifiants AWS par défaut :
 
 ```bash
-sensedrift --profile perso --regions eu-west-3 eu-west-1
+sensedrift --regions eu-west-3 eu-west-1
+```
+
+Si vous utilisez plusieurs profils AWS (listez-les avec `aws configure list-profiles`), précisez lequel :
+
+```bash
+sensedrift --profile <nom-du-profil> --regions eu-west-3 eu-west-1
 ```
 
 Sur le compte d'un client (après déploiement du rôle, voir plus bas) :
@@ -44,7 +92,7 @@ Les fichiers sont écrits dans `rapports/`. Options utiles :
 Rapport d'exemple sans compte AWS (données fictives) :
 
 ```bash
-python examples/demo_report.py
+python3 examples/demo_report.py
 ```
 
 ## Onboarding d'un client (rôle IAM avec ExternalId)

@@ -98,8 +98,21 @@ def main(argv=None) -> int:
     try:
         session = build_session(args)
         regions = resolve_regions(session, args)
-    except (botocore.exceptions.ClientError, botocore.exceptions.NoCredentialsError,
-            botocore.exceptions.ProfileNotFound) as e:
+    except botocore.exceptions.ProfileNotFound:
+        profiles = boto3.Session().available_profiles
+        log.error("Le profil AWS « %s » n'existe pas sur cette machine.", args.profile)
+        if profiles:
+            log.error("Profils disponibles : %s", ", ".join(profiles))
+            log.error("Relancez avec --profile <nom>, ou sans --profile pour le profil par défaut.")
+        else:
+            log.error("Aucun profil configuré. Créez-en un avec : aws configure --profile %s",
+                      args.profile)
+        return 2
+    except botocore.exceptions.NoCredentialsError:
+        log.error("Aucun identifiant AWS trouvé. Configurez-en avec « aws configure » "
+                  "(ou « aws configure sso »), puis relancez.")
+        return 2
+    except botocore.exceptions.ClientError as e:
         log.error("Impossible d'obtenir des identifiants AWS : %s", e)
         return 2
 
