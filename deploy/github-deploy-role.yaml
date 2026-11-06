@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Rôle IAM assumé par GitHub Actions (OIDC, sans clé d'accès) pour publier le
+  site dans le bucket S3. Limité à la branche main du dépôt indiqué.
+
+Parameters:
+  GitHubRepo:
+    Type: String
+    Default: JulienDroulez31/sensedrift
+    Description: Dépôt GitHub autorisé (propriétaire/nom).
+  Branch:
+    Type: String
+    Default: main
+  BucketName:
+    Type: String
+    Default: sensedrift-landing
+  CloudFrontDistributionId:
+    Type: String
+    Default: ""
+    Description: (Optionnel) ID de la distribution CloudFront à invalider après déploiement.
+  CreateOIDCProvider:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+    Description: >-
+      Mettre "false" si le fournisseur OIDC token.actions.githubusercontent.com
+      existe déjà dans le compte (IAM → Fournisseurs d'identité).
+
+Conditions:
+  CreateProvider: !Equals [!Ref CreateOIDCProvider, "true"]
+  HasCloudFront: !Not [!Equals [!Ref CloudFrontDistributionId, ""]]
+
+Resources:
+  GitHubOIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: CreateProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: [sts.amazonaws.com]
+
+  DeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: GitHubActionsSensedriftSiteDeploy
+      Description: Publication du site depuis GitHub Actions (bucket S3 uniquement).
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !If
+                - CreateProvider
+                - !Ref GitHubOIDCProvider
+                - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com"
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub "repo:${GitHubRepo}:ref:refs/heads/${Branch}"
+      Policies:
+        - PolicyName: DeploySite
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ListBucket
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: !Sub "arn:aws:s3:::${BucketName}"
+              - Sid: WriteObjects
+                Effect: Allow
+                Action: [s3:PutObject, s3:DeleteObject, s3:GetObject]
+                Resource: !Sub "arn:aws:s3:::${BucketName}/*"
+              - !If
+                - HasCloudFront
+                - Sid: InvalidateCache
+                  Effect: Allow
+                  Action: cloudfront:CreateInvalidation
+                  Resource: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistributionId}"
+                - !Ref AWS::NoValue
+
+Outputs:
+  RoleArn:
+    Description: À copier dans la variable GitHub AWS_DEPLOY_ROLE_ARN.
+    Value: !GetAtt DeployRole.Arn
